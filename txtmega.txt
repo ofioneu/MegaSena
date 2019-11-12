@@ -1,0 +1,22 @@
+<tr>
+<td rowspan="1">1</td>
+<td rowspan="1">11/03/1996</td>
+<td rowspan="1">41</td>
+<td rowspan="1">05</td>
+<td rowspan="1">04</td>
+<td rowspan="1">52</td>
+<td rowspan="1">30</td>
+<td rowspan="1">33</td>
+<td rowspan="1">0,00</td>
+<td rowspan="1">0</td>
+<td rowspan="1"> </td><td rowspan="1"> </td>
+<td rowspan="1">0,00</td>
+<td rowspan="1">17</td>
+<td rowspan="1">39.158,92</td>
+<td rowspan="1">2016</td>
+<td rowspan="1">330,21</td>
+<td rowspan="1">SIM</td>
+<td rowspan="1">1.714.650,23</td>
+<td rowspan="1">0,00</td>
+<td rowspan="1">0,00</td>
+</tr>

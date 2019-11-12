@@ -17,6 +17,27 @@ def scraping():
 
     print(vet_filhos)
 
+def importa():
+   vet_tr =[]
+   vet_trtext=[]
+   soup = BeautifulSoup(open("d_mega.html"), "html.parser")
+   mydivs = soup.find("table")
+   h=mydivs.find_all('tr')
+   print(len(h))
+   for i in h:
+       vet_tr.append(i)
+
+   for a in vet_tr[1]:
+       vet_trtext.append(a)
+   print(vet_trtext)
+      
+   #f=open('txtmega.txt', 'w')
+   #f.writelines(str(vet[1]))
+   #f.close()
+   #print(vet[1])
+
+importa()
+
 def indiceSemana():
     hoje=date.today()
     indice=hoje.weekday()
