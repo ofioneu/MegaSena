@@ -1,7 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
 from datetime import date
-import codecs
 import psycopg2
 
 try:
@@ -9,7 +8,7 @@ try:
                                 password = "root",
                                 host = "localhost",
                                 port = "5432",
-                                database = "MegaSena")
+                                database = "postgres")
     print("BD Conectado!")
     cur = conn.cursor()
 except (Exception, psycopg2.Error) as error :
@@ -17,46 +16,94 @@ except (Exception, psycopg2.Error) as error :
     print("Falha conexao com o banco!")
 
 finally:
-    def scraping():
 
-       
+        def scraping():
+                page = requests.get('https://www.sorteonline.com.br/mega-sena/resultados/')
+                print(page)
+                soup = BeautifulSoup(page.text, "html.parser")
 
-       
-       vet =[]
-       soup = BeautifulSoup(open("d_mega.html"), "html.parser")
-       mydivs = soup.find("table")
-       dados_html=mydivs.find_all('tr') #tr retorna um bloco com 21
-       print(len(dados_html))
+                dezenas = soup.find("div", {"class": "result result-default center"})
+                filhos_dezenas=dezenas.findChildren("li")
 
-       #for que passa os ddos html para um vetor a cada 21 td corresponde a um resultado
-       for i in dados_html:
-           if (i != None):
-               vet.append(i.text)   
+                vet_dezenas =[]
+
+                for filhos in filhos_dezenas:
+                        vet_dezenas.append(filhos.text)
+
+                print(vet_dezenas)
+
+                n_concurso = soup.find("span", {"id": "nroConcursoHeader[0]"}).text
+                print(n_concurso)
+
+                resultados = soup.find_all("div", {"class": "tr"})
+                ganhadoderes_td=[]
+                del(resultados[0])
+                print('quantidade de classes tr: ',len(resultados))
+                for filhos_resultados in resultados:
+                        if(filhos_resultados.get_text):
+                                ganhadoderes_td.append(filhos_resultados.findChildren("span", {"class":"td"}))
+
+                vet_class_td=[]
+                rateio=[]
+                rat_sena=[]
+                rat_quina=[]
+                rat_quadra=[]
+                _acomulado=''
+                for class_td in ganhadoderes_td:                        
+                        vet_class_td.append(class_td)
+                for u in range(len(vet_class_td)):                
+                        for i in vet_class_td[u]:
+                               rateio.append(i.text)
+
                 
-       #print(vet[2])
-       
-       #insert_query = "insert into megasena (id, concurso, data_sorteio, primeira_dez, segunda_dez, terceira_dez, quarta_dez, quinta_dez, sexta_dez, arrecadacao_total, ganhadores_sena, cidade, uf, rateio_sena, ganhadores_quina, rateio_quina, ganhadores_quadra, rateio_quadra, acomulado, valor_acomulado, estimativa_premio, acomulado_mega_da_virada) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-       #dados_insert = (vet[2])
+                
+                for _rat_sena in rateio[:3]:
+                        rat_sena.append(_rat_sena.strip().replace('-', '0').replace('.','').replace(',','.'))
+                
+                for _rat_quina in rateio[3:6]:
+                        rat_quina.append(_rat_quina.strip().replace('-', '0').replace('.','').replace(',','.'))
+                
+                for _rat_quadra in rateio[6:9]:
+                        rat_quadra.append(_rat_quadra.strip().replace('-', '0').replace('.','').replace(',','.'))
 
-       #cur.execute(insert_query, dados_insert)
+                print(rat_sena,rat_quina,rat_quadra)
 
-       #recset = cur.fetchall()
-       #print(recset)
-       tes=[]
-       tes1=[]
-       tamanho_vet = len(vet)
-       #for que le os dados das posições de um vetor
-       #for percorre in range(tamanho_vet):
-           #tes1.append(percorre)
-           #for elementos in vet[percorre]:
-               #for p in range(21):              
-                   #tes.append(elementos)
-               #del(vet[0:21])
-            
-       #print(tes) 
-       for u in vet[2]:
-           tes1.append(u)
-       print(vet[2]) 
-       print(tes1)
+                if(rat_sena[1]!='0'):
+                        _acomulado='SIM'
+                else:
+                        _acomulado='NAO'
 
-scraping()
+                hj = date.today()
+
+                
+
+                insert_query = "insert into megasena (id, concurso, data_sorteio, primeira_dez,segunda_dez, terceira_dez, quarta_dez, quinta_dez, sexta_dez, ganhadores_sena, rateio_sena, ganhadores_quina, rateio_quina, ganhadores_quadra, rateio_quadra, acomulado) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
+
+                cur.execute('select last_value from megasena_id_seq')
+                seq_id=cur.fetchone()
+                for _seq_id in seq_id:                        
+                        _seq_id_id=int(_seq_id)+1
+                print('seq_id: ', _seq_id_id)
+
+                values_=(_seq_id_id, n_concurso, hj, vet_dezenas[0],vet_dezenas[1],vet_dezenas[2],vet_dezenas[3],vet_dezenas[4],vet_dezenas[5], rat_sena[1],rat_sena[2], rat_quina[1],rat_quina[2], rat_quadra[1],rat_quadra[2],_acomulado)
+
+                #preciso colocar uma logica para fazer o insert apenas uma vez nos dias requeridos, pois caso contrario vai ficar lotando o banco com o mesmo valor, obs, o banco já funciona o insert
+
+                if()
+
+                cur.execute(insert_query,values_)
+
+                                
+                conn.commit()
+
+                conn.close()
+
+        def indiceSemana():
+                hoje=date.today()
+                indice=hoje.weekday()
+                print(indice)
+                if(indice==2 or indice==5):
+                        scraping()
+
+        
+        indiceSemana()
