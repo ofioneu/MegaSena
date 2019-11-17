@@ -8,7 +8,7 @@ try:
     conn = psycopg2.connect(user = "postgres",
                                 password = "root",
                                 host = "localhost",
-                                port = "5433",
+                                port = "5432",
                                 database = "postgres")
     print("BD Conectado!")
     cur = conn.cursor()
@@ -37,9 +37,12 @@ finally:
                 print('Concurso atual: ', n_concurso)
 
                 resultados = soup.find_all("div", {"class": "tr"})
+                proximo_valor = soup.find('div', {"class": 'value color'}).text
+                proximo_valor=proximo_valor.replace('.','').replace(',','.').replace('R$', '')
+                print('Valor acomulado: ', proximo_valor)
                 ganhadoderes_td=[]
                 del(resultados[0])
-                print('quantidade de classes tr: ',len(resultados))
+                #print('quantidade de classes tr: ',len(resultados))
                 for filhos_resultados in resultados:
                         if(filhos_resultados.get_text):
                                 ganhadoderes_td.append(filhos_resultados.findChildren("span", {"class":"td"}))
@@ -75,41 +78,36 @@ finally:
 
                 hj = date.today()
   
-                insert_query = "insert into megasena (id, concurso, data_sorteio, primeira_dez,segunda_dez, terceira_dez, quarta_dez, quinta_dez, sexta_dez, ganhadores_sena, rateio_sena, ganhadores_quina, rateio_quina, ganhadores_quadra, rateio_quadra, acomulado) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
+                insert_query = "insert into megasena (id, concurso, data_sorteio, primeira_dez,segunda_dez, terceira_dez, quarta_dez, quinta_dez, sexta_dez, ganhadores_sena, rateio_sena, ganhadores_quina, rateio_quina, ganhadores_quadra, rateio_quadra, acomulado, valor_acomulado) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
 
                 cur.execute('SELECT max(id) as maximo FROM megasena')
                 seq_id=cur.fetchone()
                 
                 for _seq_id in seq_id:                        
                         _seq_id_id=_seq_id
-                        print('_seq_id_id for: ', _seq_id_id)
+                        #print('_seq_id_id for: ', _seq_id_id)
                
                 _seq_id_id =int(_seq_id_id) + 1 
-                print('seq_id: ', _seq_id_id)
+                #print('seq_id: ', _seq_id_id)
 
-                values_=(_seq_id_id, n_concurso, hj, vet_dezenas[0],vet_dezenas[1],vet_dezenas[2],vet_dezenas[3],vet_dezenas[4],vet_dezenas[5], rat_sena[1],rat_sena[2], rat_quina[1],rat_quina[2], rat_quadra[1],rat_quadra[2],_acomulado)
+                values_=(_seq_id_id, n_concurso, hj, vet_dezenas[0],vet_dezenas[1],vet_dezenas[2],vet_dezenas[3],vet_dezenas[4],vet_dezenas[5], rat_sena[1],rat_sena[2], rat_quina[1],rat_quina[2], rat_quadra[1],rat_quadra[2],_acomulado,proximo_valor)
 
                 _seq_id_id = 0
-                print('Seq_id_id: ', _seq_id_id)
-                             
-                cur.execute(insert_query,values_)
-                              
-                conn.commit()
-                
-                time.sleep(2)
-        
-        
-        
-        def controle():
-                hoje=date.today()
-                hora= datetime.now()
-                print('Hora atual: ', hora.hour, hora.minute, hora.second)
-                indice=hoje.weekday()
-                print('Indice do dia da semana: ', indice)
-                if((indice==2 or indice==5) and hora.hour == 01 and hora.minute == 00 and (hora.second == 00 or hora.second == 1)):
-                        scrapingInsert()
+                #print('Seq_id_id: ', _seq_id_id)
 
-        
+                cur.execute('select max(concurso) as concurso from megasena')
+                ultimo_concurso=cur.fetchone()
+
+                for concurso in ultimo_concurso:
+                        last_concurso=int(concurso)
+
+                if(last_concurso < int(n_concurso)):
+                             
+                        cur.execute(insert_query,values_)
+                        print('Atualizado com sucesso!'+ str(last_concurso) + '>>>' + str(n_concurso)) 
+                              
+                        conn.commit()
+                
         while True:
-                controle()
+                scrapingInsert()
                 time.sleep(1)
