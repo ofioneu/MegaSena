@@ -8,7 +8,7 @@ try:
     conn = psycopg2.connect(user = "postgres",
                                 password = "root",
                                 host = "localhost",
-                                port = "5432",
+                                port = "5433",
                                 database = "postgres")
     print("BD Conectado!")
     cur = conn.cursor()
