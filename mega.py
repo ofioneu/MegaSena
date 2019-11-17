@@ -106,7 +106,7 @@ finally:
                 print('Hora atual: ', hora.hour, hora.minute, hora.second)
                 indice=hoje.weekday()
                 print('Indice do dia da semana: ', indice)
-                if((indice==2 or indice==5) and hora.hour == 22 and hora.minute == 00 and (hora.second == 00 or hora.second == 1)):
+                if((indice==2 or indice==5) and hora.hour == 01 and hora.minute == 00 and (hora.second == 00 or hora.second == 1)):
                         scrapingInsert()
 
         
