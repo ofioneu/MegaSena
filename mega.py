@@ -30,6 +30,8 @@ finally:
 
                 for filhos in filhos_dezenas:
                         vet_dezenas.append(filhos.text)
+                
+                vet_dezenas.sort()
 
                 print('Ultimas dezenas: ', vet_dezenas)
 
