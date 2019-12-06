@@ -3,12 +3,13 @@ import requests
 from datetime import date,time, datetime
 import time
 import psycopg2
+import re
 
 try:
     conn = psycopg2.connect(user = "postgres",
                                 password = "root",
-                                host = "localhost",
-                                port = "5432",
+                                host = "35.239.106.233",
+                                port = "5433",
                                 database = "postgres")
     print("BD Conectado!")
     cur = conn.cursor()
@@ -72,6 +73,8 @@ finally:
                 for _rat_quadra in rateio[6:9]:
                         rat_quadra.append(_rat_quadra.strip().replace('-', '0').replace('.','').replace(',','.'))
 
+                ganhadores_sena = rat_sena[1]
+                ganhadores_sena = re.sub('[^0-9]', '', ganhadores_sena)
 
                 if(rat_sena[1]!='0'):
                         _acomulado='NAO'
@@ -92,7 +95,7 @@ finally:
                 _seq_id_id =int(_seq_id_id) + 1 
                 #print('seq_id: ', _seq_id_id)
 
-                values_=(_seq_id_id, n_concurso, hj, vet_dezenas[0],vet_dezenas[1],vet_dezenas[2],vet_dezenas[3],vet_dezenas[4],vet_dezenas[5], rat_sena[1],rat_sena[2], rat_quina[1],rat_quina[2], rat_quadra[1],rat_quadra[2],_acomulado,proximo_valor)
+                values_=(_seq_id_id, n_concurso, hj, vet_dezenas[0],vet_dezenas[1],vet_dezenas[2],vet_dezenas[3],vet_dezenas[4],vet_dezenas[5], ganhadores_sena ,rat_sena[2], rat_quina[1],rat_quina[2], rat_quadra[1],rat_quadra[2],_acomulado,proximo_valor)
 
                 _seq_id_id = 0
                 #print('Seq_id_id: ', _seq_id_id)
@@ -112,4 +115,4 @@ finally:
                 
         while True:
                 scrapingInsert()
-                time.sleep(1)
+                time.sleep(7200)
